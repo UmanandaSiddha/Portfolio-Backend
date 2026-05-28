@@ -158,7 +158,7 @@ WHERE NOT EXISTS (SELECT 1 FROM talks);
 
 -- Books
 INSERT INTO books (title, author, status, pct, sort_order)
-SELECT * FROM (VALUES
+SELECT title, author, status::book_status, pct, sort_order FROM (VALUES
     ('Designing Data-Intensive Applications', 'Kleppmann',         'done',    100, 0),
     ('The Practice of Programming',           'Kernighan & Pike',  'done',    100, 1),
     ('Database Internals',                    'Petrov',            'reading',  62, 2),

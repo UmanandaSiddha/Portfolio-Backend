@@ -14,6 +14,11 @@ export class ProjectMetricDto {
   @IsString() @IsNotEmpty() v!: string;
 }
 
+export class ProjectLinkDto {
+  @IsString() @IsNotEmpty() label!: string;
+  @IsString() @IsNotEmpty() url!: string;
+}
+
 export class CreateProjectDto {
   @IsString() @IsNotEmpty() slug!: string;
   @IsString() @IsNotEmpty() name!: string;
@@ -23,6 +28,8 @@ export class CreateProjectDto {
   @IsArray() @ValidateNested({ each: true }) @Type(() => ProjectMetricDto)
   metrics!: ProjectMetricDto[];
   @IsArray() @IsString({ each: true }) bullets!: string[];
+  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => ProjectLinkDto)
+  links?: ProjectLinkDto[];
   @IsOptional() @IsInt() @Min(0) sortOrder?: number;
 }
 
@@ -35,5 +42,7 @@ export class UpdateProjectDto {
   @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => ProjectMetricDto)
   metrics?: ProjectMetricDto[];
   @IsOptional() @IsArray() @IsString({ each: true }) bullets?: string[];
+  @IsOptional() @IsArray() @ValidateNested({ each: true }) @Type(() => ProjectLinkDto)
+  links?: ProjectLinkDto[];
   @IsOptional() @IsInt() @Min(0) sortOrder?: number;
 }

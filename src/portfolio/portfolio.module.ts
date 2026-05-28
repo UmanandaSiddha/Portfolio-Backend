@@ -8,6 +8,8 @@ import { TalksModule } from "./talks/talks.module";
 import { BooksModule } from "./books/books.module";
 import { UsesModule } from "./uses/uses.module";
 import { NowPlayingModule } from "./now-playing/now-playing.module";
+import { ExperienceModule } from "./experience/experience.module";
+import { EducationModule } from "./education/education.module";
 import { PostsModule } from "../posts/posts.module";
 import { PortfolioPublicController } from "./public.controller";
 
@@ -18,6 +20,8 @@ import { PortfolioPublicController } from "./public.controller";
     BooksModule,
     UsesModule,
     NowPlayingModule,
+    ExperienceModule,
+    EducationModule,
     PostsModule,
   ],
   controllers: [

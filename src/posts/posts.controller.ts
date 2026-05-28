@@ -19,7 +19,6 @@ import { Public } from "../common/decorators/public.decorator";
 import { OptionalJwtAuthGuard } from "../common/guards/optional-jwt-auth.guard";
 import { CurrentUser, CurrentUserPayload } from "../common/decorators/current-user.decorator";
 import { Roles } from "../common/decorators/roles.decorator";
-import { Env } from "../config/env.schema";
 
 export class ReactionDto {
   @IsOptional() @IsEnum(["like", "dislike"]) type?: "like" | "dislike" | null;
@@ -29,7 +28,7 @@ const KINDS: readonly PostKind[] = ["blog", "diary"];
 
 @Controller("posts")
 export class PostsController {
-  constructor(private readonly posts: PostsService, private readonly env: Env) {}
+  constructor(private readonly posts: PostsService) {}
 
   @Public()
   @Get()
@@ -94,5 +93,18 @@ export class PostsController {
       userId: user.id,
       type: dto.type ?? null,
     });
+  }
+
+  @Roles("OWNER")
+  @Post(":kind/:slug/blast")
+  async blast(@Param("kind") kind: PostKind, @Param("slug") slug: string) {
+    if (!KINDS.includes(kind)) throw new BadRequestException("Invalid kind");
+    return this.posts.blast(kind, slug);
+  }
+
+  @Roles("OWNER")
+  @Post("admin/sync")
+  syncFromSanity() {
+    return this.posts.syncFromSanity();
   }
 }

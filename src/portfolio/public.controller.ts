@@ -6,6 +6,8 @@ import { TalksService } from "./talks/talks.module";
 import { BooksService } from "./books/books.module";
 import { UsesService } from "./uses/uses.module";
 import { NowPlayingService } from "./now-playing/now-playing.module";
+import { ExperienceService } from "./experience/experience.module";
+import { EducationService } from "./education/education.module";
 import { PostsService } from "../posts/posts.service";
 import { Public } from "../common/decorators/public.decorator";
 
@@ -19,6 +21,8 @@ export class PortfolioPublicController {
     private readonly books: BooksService,
     private readonly uses: UsesService,
     private readonly nowPlaying: NowPlayingService,
+    private readonly experience: ExperienceService,
+    private readonly education: EducationService,
     private readonly posts: PostsService,
   ) {}
 
@@ -29,7 +33,7 @@ export class PortfolioPublicController {
   @Public()
   @Get()
   async get() {
-    const [identity, status, hero, about, sideFacts, projects, oss, blog, diary, talks, reading, nowPlaying, usesGroups] =
+    const [identity, status, hero, about, sideFacts, projects, oss, blog, diary, talks, reading, nowPlaying, usesGroups, sections, experience, education] =
       await Promise.all([
         this.site.getIdentity(),
         this.site.getStatus(),
@@ -44,6 +48,9 @@ export class PortfolioPublicController {
         this.books.list(),
         this.nowPlaying.list(),
         this.uses.listAll(),
+        this.site.listSections(),
+        this.experience.list(),
+        this.education.list(),
       ]);
 
     return {
@@ -56,6 +63,7 @@ export class PortfolioPublicController {
       linkedin: identity?.linkedin ?? "",
       site: identity?.site_url ?? "",
       avatarUrl: identity?.avatar_url ?? null,
+      spotifyPlaylistUrl: identity?.spotify_playlist_url ?? null,
       status: {
         available: status?.available ?? "",
         currentlyAt: status?.currently_at ?? "",
@@ -80,6 +88,7 @@ export class PortfolioPublicController {
         metrics: p.metrics,
         bullets: p.bullets,
         tags: p.tags,
+        links: p.links,
       })),
       oss: oss.map((o) => ({
         name: o.name,
@@ -106,6 +115,22 @@ export class PortfolioPublicController {
         buyUrl: b.buy_url,
       })),
       nowPlaying: nowPlaying.map((n) => ({ track: n.track, artist: n.artist })),
+      sections: sections.map((s) => ({ key: s.key, label: s.label, visible: s.visible })),
+      experience: experience.map((e) => ({
+        id: e.id,
+        role: e.role,
+        company: e.company,
+        location: e.location,
+        period: e.period,
+        bullets: e.bullets,
+      })),
+      education: education.map((e) => ({
+        id: e.id,
+        institution: e.institution,
+        degree: e.degree,
+        detail: e.detail,
+        period: e.period,
+      })),
     };
   }
 }

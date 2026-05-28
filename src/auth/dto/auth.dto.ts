@@ -1,6 +1,7 @@
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MaxLength,
   MinLength,
@@ -31,15 +32,19 @@ export class LoginDto {
 }
 
 export class RefreshDto {
+  // Optional in the body — the cookie is the primary source. Body fallback
+  // is kept for backwards compatibility with any non-cookie client.
+  @IsOptional()
   @IsString()
   @MinLength(1)
-  refreshToken!: string;
+  refreshToken?: string;
 }
 
 export class LogoutDto {
+  @IsOptional()
   @IsString()
   @MinLength(1)
-  refreshToken!: string;
+  refreshToken?: string;
 }
 
 export class VerifyEmailDto {

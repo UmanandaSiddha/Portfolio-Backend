@@ -32,9 +32,10 @@ CREATE TABLE post_views (
     session_id      text,
     viewed_at       timestamptz NOT NULL DEFAULT now()
 );
--- Dedup at the hour granularity (one view per (post, viewer) per hour)
+-- Dedup at the hour granularity (one view per (post, viewer) per hour).
+-- Cast to timestamp (without timezone) at UTC so date_trunc resolves to the IMMUTABLE overload.
 CREATE UNIQUE INDEX uniq_post_views_dedup
-    ON post_views (post_id, viewer_hash, (date_trunc('hour', viewed_at)));
+    ON post_views (post_id, viewer_hash, (date_trunc('hour', viewed_at AT TIME ZONE 'UTC')));
 CREATE INDEX idx_post_views_post  ON post_views (post_id);
 
 CREATE TYPE reaction_type AS ENUM ('like', 'dislike');

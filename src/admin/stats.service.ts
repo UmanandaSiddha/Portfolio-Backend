@@ -2,6 +2,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { sql } from "kysely";
 import { DATABASE } from "../database/database.module";
 import type { AppDb } from "../database/db";
+import { SanityService } from "../sanity/sanity.service";
 
 export type AdminStats = {
   subscribers: {
@@ -29,7 +30,10 @@ export type AdminStats = {
 
 @Injectable()
 export class AdminStatsService {
-  constructor(@Inject(DATABASE) private readonly db: AppDb) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDb,
+    private readonly sanity: SanityService,
+  ) {}
 
   async get(): Promise<AdminStats> {
     const isoCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -42,7 +46,8 @@ export class AdminStatsService {
 
     const [
       subs,
-      posts,
+      blogMetas,
+      diaryMetas,
       viewsAllRow,
       views7dRow,
       topPost,
@@ -66,14 +71,8 @@ export class AdminStatsService {
         ])
         .executeTakeFirstOrThrow(),
 
-      this.db
-        .selectFrom("posts")
-        .select((eb) => [
-          fn.countAll<number>().as("total"),
-          fn.countAll<number>().filterWhere(eb("kind", "=", "blog")).as("blogs"),
-          fn.countAll<number>().filterWhere(eb("kind", "=", "diary")).as("diaries"),
-        ])
-        .executeTakeFirstOrThrow(),
+      this.sanity.listPostsMeta("blog"),
+      this.sanity.listPostsMeta("diary"),
 
       this.db
         .selectFrom("post_views")
@@ -127,9 +126,9 @@ export class AdminStatsService {
         newLast7d: toNum(subs.new7d),
       },
       posts: {
-        total: toNum(posts.total),
-        blogs: toNum(posts.blogs),
-        diaries: toNum(posts.diaries),
+        total: blogMetas.length + diaryMetas.length,
+        blogs: blogMetas.length,
+        diaries: diaryMetas.length,
         viewsAllTime: toNum(viewsAllRow.c),
         viewsLast7d: toNum(views7dRow.c),
         mostViewedLast7d: topPost

@@ -5,7 +5,7 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
-  PORT: z.coerce.number().int().positive().default(3001),
+  PORT: z.coerce.number().int().positive().default(7000),
   CORS_ORIGINS: z.string().default("http://localhost:3000"),
 
   DATABASE_URL: z.string().min(1),
@@ -19,7 +19,7 @@ const envSchema = z.object({
   OWNER_EMAIL: z.string().email(),
 
   PUBLIC_BASE_URL: z.string().url().default("http://localhost:3000"),
-  PUBLIC_API_URL: z.string().url().default("http://localhost:3001"),
+  PUBLIC_API_URL: z.string().url().default("http://localhost:7000"),
 
   RESEND_API_KEY: z.string().min(1).optional(),
   MAIL_FROM_DOMAIN: z.string().min(1).default("example.com"),
@@ -33,10 +33,12 @@ const envSchema = z.object({
   SANITY_DATASET: z.string().default("production"),
   SANITY_API_VERSION: z.string().default("2025-05-16"),
   SANITY_READ_TOKEN: z.string().optional(),
-  SANITY_WEBHOOK_SECRET: z.string().min(1).default("change-me-webhook-secret"),
 
-  CLIENT_REVALIDATE_URL: z.string().url().optional(),
-  REVALIDATE_SECRET: z.string().min(16).optional(),
+  // Cookie domain — leave empty for localhost dev. In prod with API on a
+  // subdomain (e.g. portfolio.api.umanandasiddha.in) and client on another
+  // (www.umanandasiddha.in), set to ".umanandasiddha.in" so cookies are
+  // valid across both.
+  COOKIE_DOMAIN: z.string().optional(),
 });
 
 export type EnvShape = z.infer<typeof envSchema>;
@@ -76,7 +78,5 @@ export class Env implements EnvShape {
   SANITY_DATASET!: string;
   SANITY_API_VERSION!: string;
   SANITY_READ_TOKEN?: string;
-  SANITY_WEBHOOK_SECRET!: string;
-  CLIENT_REVALIDATE_URL?: string;
-  REVALIDATE_SECRET?: string;
+  COOKIE_DOMAIN?: string;
 }

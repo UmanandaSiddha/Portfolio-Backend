@@ -13,6 +13,7 @@ export type ProjectWithChildren = {
   sortOrder: number;
   metrics: Array<{ k: string; v: string }>;
   bullets: string[];
+  links: Array<{ label: string; url: string }>;
 };
 
 @Injectable()
@@ -40,6 +41,12 @@ export class ProjectsService {
       .where("project_id", "in", ids)
       .orderBy("sort_order")
       .execute();
+    const links = await this.db
+      .selectFrom("project_links")
+      .select(["project_id", "label", "url", "sort_order"])
+      .where("project_id", "in", ids)
+      .orderBy("sort_order")
+      .execute();
     return projects.map((p) => ({
       id: p.id,
       slug: p.slug,
@@ -54,6 +61,9 @@ export class ProjectsService {
       bullets: bullets
         .filter((b) => b.project_id === p.id)
         .map((b) => b.body),
+      links: links
+        .filter((l) => l.project_id === p.id)
+        .map((l) => ({ label: l.label, url: l.url })),
     }));
   }
 
@@ -96,6 +106,20 @@ export class ProjectsService {
           )
           .execute();
       }
+      const links = dto.links ?? [];
+      if (links.length > 0) {
+        await tx
+          .insertInto("project_links")
+          .values(
+            links.map((l, i) => ({
+              project_id: project.id,
+              label: l.label,
+              url: l.url,
+              sort_order: i,
+            })),
+          )
+          .execute();
+      }
       return {
         id: project.id,
         slug: project.slug,
@@ -106,6 +130,7 @@ export class ProjectsService {
         sortOrder: project.sort_order,
         metrics: dto.metrics,
         bullets: dto.bullets,
+        links,
       };
     });
   }
@@ -145,6 +170,17 @@ export class ProjectsService {
             .insertInto("project_bullets")
             .values(dto.bullets.map((b, i) => ({
               project_id: id, body: b, sort_order: i,
+            })))
+            .execute();
+        }
+      }
+      if (dto.links !== undefined) {
+        await tx.deleteFrom("project_links").where("project_id", "=", id).execute();
+        if (dto.links.length > 0) {
+          await tx
+            .insertInto("project_links")
+            .values(dto.links.map((l, i) => ({
+              project_id: id, label: l.label, url: l.url, sort_order: i,
             })))
             .execute();
         }

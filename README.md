@@ -10,8 +10,8 @@ docker compose up -d       # local Postgres on :5432 + Redis on :6379
 npm install
 npm run db:up              # run dbmate migrations (uses DATABASE_URL from .env)
 npm run db:codegen         # regenerate src/database/types.ts from schema
-npm run start:dev          # nest start --watch on :3001
-curl http://localhost:3001/health
+npm run start:dev          # nest start --watch on :7000
+curl http://localhost:7000/health
 ```
 
 ## Scripts
@@ -53,7 +53,7 @@ before starting Node, so a fresh container always has the latest schema):
 
 ```bash
 docker build -t portfolio-api .
-docker run --env-file .env -p 3001:3001 portfolio-api
+docker run --env-file .env -p 7000:7000 portfolio-api
 ```
 
 The container expects `DATABASE_URL`, `REDIS_URL`, all `JWT_*`, `OWNER_EMAIL`,

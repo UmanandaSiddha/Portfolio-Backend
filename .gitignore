@@ -2,6 +2,7 @@ node_modules
 dist
 .env
 .env.local
+.env.prod
 .env.*.local
 *.log
 .idea
@@ -9,3 +10,4 @@ dist
 .DS_Store
 coverage
 .tsbuildinfo
+service-account.json

@@ -3,6 +3,7 @@ import { DATABASE } from "../database/database.module";
 import type { AppDb } from "../database/db";
 import type { PostKind } from "../database/types";
 import { CommentEventsBus } from "./comments.events";
+import { PostsService } from "./posts.service";
 
 function toIso(v: Date | string): string {
   return v instanceof Date ? v.toISOString() : new Date(v).toISOString();
@@ -25,18 +26,12 @@ export class CommentsService {
   constructor(
     @Inject(DATABASE) private readonly db: AppDb,
     private readonly events: CommentEventsBus,
+    private readonly posts: PostsService,
   ) {}
 
   private async postIdBySlug(kind: PostKind, slug: string) {
-    const row = await this.db
-      .selectFrom("posts")
-      .select(["id"])
-      .where("kind", "=", kind)
-      .where("slug", "=", slug)
-      .where("is_published", "=", true)
-      .executeTakeFirst();
-    if (!row) throw new NotFoundException();
-    return row.id;
+    const { id } = await this.posts.resolvePost(kind, slug);
+    return id;
   }
 
   async list(kind: PostKind, slug: string, limit = 50, offset = 0): Promise<CommentNode[]> {

@@ -74,6 +74,7 @@ export interface SiteIdentityTable {
   linkedin: string | null;
   site_url: string | null;
   avatar_url: string | null;
+  spotify_playlist_url: string | null;
   updated_at: Generated<Timestamp>;
 }
 
@@ -141,6 +142,15 @@ export interface ProjectBulletsTable {
   created_at: Generated<Timestamp>;
 }
 
+export interface ProjectLinksTable {
+  id: Generated<string>;
+  project_id: string;
+  label: string;
+  url: string;
+  sort_order: Generated<number>;
+  created_at: Generated<Timestamp>;
+}
+
 export interface OssReposTable {
   id: Generated<string>;
   name: string;
@@ -204,6 +214,37 @@ export interface NowPlayingTable {
   id: Generated<string>;
   track: string;
   artist: string;
+  sort_order: Generated<number>;
+  created_at: Generated<Timestamp>;
+  updated_at: Generated<Timestamp>;
+}
+
+export interface SectionsTable {
+  key: string;
+  label: string;
+  visible: Generated<boolean>;
+  sort_order: Generated<number>;
+  updated_at: Generated<Timestamp>;
+}
+
+export interface ExperienceTable {
+  id: Generated<string>;
+  role: string;
+  company: string;
+  location: string | null;
+  period: string;
+  bullets: Generated<string[]>;
+  sort_order: Generated<number>;
+  created_at: Generated<Timestamp>;
+  updated_at: Generated<Timestamp>;
+}
+
+export interface EducationTable {
+  id: Generated<string>;
+  institution: string;
+  degree: string;
+  detail: string | null;
+  period: string | null;
   sort_order: Generated<number>;
   created_at: Generated<Timestamp>;
   updated_at: Generated<Timestamp>;
@@ -321,12 +362,16 @@ export interface DB {
   projects: ProjectsTable;
   project_metrics: ProjectMetricsTable;
   project_bullets: ProjectBulletsTable;
+  project_links: ProjectLinksTable;
   oss_repos: OssReposTable;
   talks: TalksTable;
   books: BooksTable;
   uses_groups: UsesGroupsTable;
   uses_items: UsesItemsTable;
   now_playing: NowPlayingTable;
+  sections: SectionsTable;
+  experience: ExperienceTable;
+  education: EducationTable;
 
   posts: PostsTable;
   post_views: PostViewsTable;

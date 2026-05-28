@@ -62,3 +62,12 @@ export class UpdateSideFactDto {
   @IsOptional() @IsString() v?: string;
   @IsOptional() @IsInt() @Min(0) sortOrder?: number;
 }
+
+export class UpdateSectionVisibilityDto {
+  @IsNotEmpty() visible!: boolean;
+}
+
+export class UpdateMusicDto {
+  // Empty string clears the playlist. A Spotify URL sets it.
+  @IsOptional() @IsString() spotifyPlaylistUrl?: string;
+}

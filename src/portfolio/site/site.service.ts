@@ -50,6 +50,25 @@ export class SiteService {
       .executeTakeFirstOrThrow();
   }
 
+  // --- Music (single curated Spotify playlist) ---
+  async setMusic(spotifyPlaylistUrl: string | null) {
+    const row = await this.db
+      .insertInto("site_identity")
+      .values({
+        id: 1,
+        name: "",
+        role: "",
+        email: "placeholder@example.com",
+        spotify_playlist_url: spotifyPlaylistUrl,
+      })
+      .onConflict((oc) =>
+        oc.column("id").doUpdateSet({ spotify_playlist_url: spotifyPlaylistUrl }),
+      )
+      .returning(["spotify_playlist_url"])
+      .executeTakeFirstOrThrow();
+    return { spotifyPlaylistUrl: row.spotify_playlist_url };
+  }
+
   // --- Status ---
   async getStatus() {
     return (await this.db.selectFrom("site_status").selectAll().executeTakeFirst()) ?? null;
@@ -149,5 +168,25 @@ export class SiteService {
   async deleteSideFact(id: string) {
     const r = await this.db.deleteFrom("side_facts").where("id", "=", id).executeTakeFirst();
     if (r.numDeletedRows === 0n) throw new NotFoundException();
+  }
+
+  // --- Section visibility ---
+  listSections() {
+    return this.db
+      .selectFrom("sections")
+      .select(["key", "label", "visible", "sort_order"])
+      .orderBy("sort_order", "asc")
+      .execute();
+  }
+
+  async setSectionVisibility(key: string, visible: boolean) {
+    const row = await this.db
+      .updateTable("sections")
+      .set({ visible })
+      .where("key", "=", key)
+      .returning(["key", "label", "visible", "sort_order"])
+      .executeTakeFirst();
+    if (!row) throw new NotFoundException(`Unknown section "${key}"`);
+    return row;
   }
 }

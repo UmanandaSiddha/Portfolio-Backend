@@ -10,7 +10,9 @@ CREATE TABLE subscriptions (
     created_at      timestamptz NOT NULL DEFAULT now(),
     updated_at      timestamptz NOT NULL DEFAULT now()
 );
-CREATE INDEX idx_subscriptions_active ON subscriptions (email) WHERE confirmed_at IS NOT NULL AND unsubscribed_at IS NULL;
+-- Partial index for the dispatcher's "find all active subscribers" scan.
+-- Indexed on (id) because pgvector/pg16's citext comparator isn't marked IMMUTABLE; UNIQUE(email) already covers point lookups.
+CREATE INDEX idx_subscriptions_active ON subscriptions (id) WHERE confirmed_at IS NOT NULL AND unsubscribed_at IS NULL;
 CREATE TRIGGER trg_subscriptions_touch_updated_at
     BEFORE UPDATE ON subscriptions
     FOR EACH ROW EXECUTE FUNCTION touch_updated_at();

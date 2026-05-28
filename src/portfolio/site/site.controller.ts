@@ -14,6 +14,8 @@ import {
   CreateSideFactDto,
   UpdateAboutDto,
   UpdateHeroDto,
+  UpdateMusicDto,
+  UpdateSectionVisibilityDto,
   UpdateSideFactDto,
   UpdateSiteIdentityDto,
   UpdateSiteStatusDto,
@@ -63,5 +65,24 @@ export class SiteAdminController {
   @HttpCode(204)
   async deleteSideFact(@Param("id") id: string) {
     await this.site.deleteSideFact(id);
+  }
+
+  @Get("sections")
+  listSections() {
+    return this.site.listSections();
+  }
+
+  @Put("sections/:key")
+  setSectionVisibility(
+    @Param("key") key: string,
+    @Body() dto: UpdateSectionVisibilityDto,
+  ) {
+    return this.site.setSectionVisibility(key, dto.visible);
+  }
+
+  @Put("music")
+  setMusic(@Body() dto: UpdateMusicDto) {
+    const url = dto.spotifyPlaylistUrl?.trim();
+    return this.site.setMusic(url ? url : null);
   }
 }
